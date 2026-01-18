@@ -1,0 +1,22 @@
+body {
+  font-family: sans-serif;
+}
+
+#container {
+  display: flex;
+}
+
+#sidebar {
+  width: 250px;
+  border-right: 1px solid #ccc;
+  padding: 8px;
+}
+
+.unit {
+  cursor: pointer;
+  padding: 4px;
+}
+
+canvas {
+  border: 1px solid black;
+}
