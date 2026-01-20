@@ -29,6 +29,10 @@
       border: 1px solid #555;
     }
 
+    #controls button:hover {
+      background: #444;
+    }
+
     canvas {
       display: block;
       background: #eee;
@@ -56,13 +60,14 @@
   <button id="rot-l-45">−45°</button>
   <button id="rot-r-45">+45°</button>
 
+  <!-- NY -->
+  <button id="delete">Delete selected</button>
+
   <button id="export">Export JSON</button>
 </div>
 
 <canvas id="board" width="1524" height="1118"></canvas>
 
-<!-- ENDA JS-REFERENSEN -->
 <script type="module" src="editor.js"></script>
-
 </body>
 </html>
