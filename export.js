@@ -2,6 +2,7 @@ export function exportJSON(pieces) {
   const data = {
     pieces: pieces.map(p => ({
       type: p.type,
+      color: p.color,
       x: Math.round(p.x),
       y: Math.round(p.y),
       w: p.w,
@@ -11,7 +12,7 @@ export function exportJSON(pieces) {
     }))
   };
 
-  const json = JSON.stringify(data, null, 2);
-  navigator.clipboard.writeText(json);
-  alert("Terrain JSON copied to clipboard");
+  const text = JSON.stringify(data, null, 2);
+  navigator.clipboard.writeText(text);
+  alert("JSON copied to clipboard");
 }
