@@ -1,19 +1,24 @@
-body {
-  margin: 0;
-  font-family: sans-serif;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Terrain Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-#toolbar {
-  padding: 8px;
-  background: #222;
-}
+<div id="toolbar">
+  <button id="add-two">Add 2-storey ruin (red)</button>
+  <button id="add-three">Add 3-storey ruin (blue)</button>
+  <button id="add-proto">Add prototype ruin (gray)</button>
+  <button id="add-container">Add container (gray)</button>
+  <button id="rot-left">Rotate -45°</button>
+  <button id="rot-right">Rotate +45°</button>
+  <button id="export">Export JSON</button>
+</div>
 
-#toolbar button {
-  margin-right: 6px;
-}
+<canvas id="board" width="1524" height="1118"></canvas>
 
-canvas {
-  display: block;
-  background: #eee;
-}
-
+<script type="module" src="editor.js"></script>
+</body>
+</html>
