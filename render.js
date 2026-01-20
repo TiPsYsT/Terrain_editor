@@ -29,7 +29,7 @@ export function drawPiece(ctx, p) {
   ctx.rotate(rot);
   ctx.translate(-p.w / 2, -p.h / 2);
 
-  // FILL
+  // fill
   ctx.fillStyle =
     p.color === "red" ? "rgba(220,80,80,0.55)" :
     p.color === "blue" ? "rgba(80,120,220,0.55)" :
@@ -37,17 +37,17 @@ export function drawPiece(ctx, p) {
 
   ctx.fillRect(0, 0, p.w, p.h);
 
-  // OUTLINE (tunn, alltid)
+  // outline
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2;
   ctx.strokeRect(0, 0, p.w, p.h);
 
-  // WTC L-VÄGGAR – ENDAST RUINS
-  if (p.kind === "ruin") {
+  // L-väggar — rita OM walls finns
+  if (Array.isArray(p.walls) && p.walls.length > 0) {
     const t = INCH;
     ctx.fillStyle = "#666";
 
-    (p.walls || []).forEach(w => {
+    p.walls.forEach(w => {
       const [[x1, y1], [x2, y2]] = w;
 
       if (x1 === x2) {
