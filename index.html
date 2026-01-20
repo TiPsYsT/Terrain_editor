@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Terrain Editor</title>
-  <link rel="stylesheet" href="style.css" />
+
   <style>
     body {
       margin: 0;
@@ -18,11 +18,24 @@
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
+      align-items: center;
     }
 
     #controls button {
       padding: 6px 10px;
       cursor: pointer;
+      background: #333;
+      color: #eee;
+      border: 1px solid #555;
+    }
+
+    #controls button:hover {
+      background: #444;
+    }
+
+    .sep {
+      width: 16px;
+      height: 1px;
     }
 
     canvas {
@@ -41,17 +54,16 @@
   <button id="three">3-storey ruin (blue)</button>
   <button id="three-inv">3-storey ruin (blue, inverted)</button>
 
-  <!-- OTHER -->
   <button id="proto">Prototype ruin</button>
   <button id="cont">Container</button>
 
-  <span style="width:20px"></span>
+  <div class="sep"></div>
 
   <!-- ROTATION -->
-  <button id="rot-left">Rotate −45°</button>
-  <button id="rot-right">Rotate +45°</button>
+  <button id="rot-left">Rotate −22.5°</button>
+  <button id="rot-right">Rotate +22.5°</button>
 
-  <span style="width:20px"></span>
+  <div class="sep"></div>
 
   <!-- EXPORT -->
   <button id="export">Export JSON</button>
@@ -59,6 +71,7 @@
 
 <canvas id="board" width="1524" height="1118"></canvas>
 
+<!-- IMPORTANT: module -->
 <script type="module" src="editor.js"></script>
 
 </body>
