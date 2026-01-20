@@ -14,5 +14,5 @@ export function exportJSON(pieces) {
 
   const text = JSON.stringify(data, null, 2);
   navigator.clipboard.writeText(text);
-  alert("JSON copied to clipboard");
+  alert("Terrain JSON copied to clipboard");
 }
