@@ -21,8 +21,15 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.round(v / INCH) * INCH;
   }
 
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawGrid(ctx, canvas.width, canvas.height);
+    pieces.forEach(p => drawPiece(ctx, p));
+  }
+
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
+    if (!t) return;
 
     let walls = [];
     if (t.l === "normal") walls = buildL(t.w, t.h);
@@ -40,12 +47,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     draw();
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    drawGrid(ctx, canvas.width, canvas.height);
-    pieces.forEach(p => drawPiece(ctx, p));
   }
 
   /* ---------- MOUSE ---------- */
@@ -85,40 +86,35 @@ document.addEventListener("DOMContentLoaded", () => {
     draw();
   }
 
+  /* ---------- SAFE BUTTON BIND ---------- */
+
+  function bind(id, fn) {
+    const el = document.getElementById(id);
+    if (el) el.onclick = fn;
+  }
+
   /* ---------- UI ---------- */
 
-  document.getElementById("two").onclick =
-    () => addTerrain("two_red");
-
-  document.getElementById("two-inv").onclick =
-    () => addTerrain("two_red_inv");
-
-  document.getElementById("three").onclick =
-    () => addTerrain("three_blue");
-
-  document.getElementById("three-inv").onclick =
-    () => addTerrain("three_blue_inv");
-
-  document.getElementById("proto").onclick =
-    () => addTerrain("prototype");
-
-  document.getElementById("cont").onclick =
-    () => addTerrain("container");
+  bind("two", () => addTerrain("two_red"));
+  bind("two-inv", () => addTerrain("two_red_inv"));
+  bind("three", () => addTerrain("three_blue"));
+  bind("three-inv", () => addTerrain("three_blue_inv"));
+  bind("proto", () => addTerrain("prototype"));
+  bind("cont", () => addTerrain("container"));
 
   // fine
-  document.getElementById("rot-l-11").onclick = () => rotate(-11.25);
-  document.getElementById("rot-r-11").onclick = () => rotate(+11.25);
+  bind("rot-l-11", () => rotate(-11.25));
+  bind("rot-r-11", () => rotate(+11.25));
 
   // medium
-  document.getElementById("rot-l-22").onclick = () => rotate(-22.5);
-  document.getElementById("rot-r-22").onclick = () => rotate(+22.5);
+  bind("rot-l-22", () => rotate(-22.5));
+  bind("rot-r-22", () => rotate(+22.5));
 
   // coarse
-  document.getElementById("rot-l-45").onclick = () => rotate(-45);
-  document.getElementById("rot-r-45").onclick = () => rotate(+45);
+  bind("rot-l-45", () => rotate(-45));
+  bind("rot-r-45", () => rotate(+45));
 
-  document.getElementById("export").onclick =
-    () => exportJSON(pieces);
+  bind("export", () => exportJSON(pieces));
 
   /* ---------- INIT ---------- */
   draw();
