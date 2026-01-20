@@ -1,67 +1,27 @@
-export const INCH = 25.4;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Terrain Editor</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
-/*
-  ENDA SANNINGEN:
-  - Samma footprint (12x6) men OLIKA TYPER + FÄRG
-  - Färg används i render, inte regler
-*/
+<div id="toolbar">
+  <button id="add-two">Add 2-storey ruin (red)</button>
+  <button id="add-three">Add 3-storey ruin (blue)</button>
+  <button id="add-proto">Add prototype ruin (gray)</button>
+  <button id="add-container">Add container (gray)</button>
+  <button id="rot-left">Rotate -45°</button>
+  <button id="rot-right">Rotate +45°</button>
+  <button id="export">Export JSON</button>
+</div>
 
-export const TERRAIN_TYPES = {
-  /* ===== RUINS ===== */
+<canvas id="board" width="1524" height="1118"></canvas>
 
-  two_storey_ruin_12x6: {
-    id: "two_storey_ruin_12x6",
-    type: "ruin",
-    color: "red",
-    w: 12 * INCH,
-    h: 6 * INCH,
-    wallType: "L"
-  },
+<script type="module">
+  import "./editor.js";
+</script>
 
-  three_storey_ruin_12x6: {
-    id: "three_storey_ruin_12x6",
-    type: "ruin",
-    color: "blue",
-    w: 12 * INCH,
-    h: 6 * INCH,
-    wallType: "L"
-  },
-
-  prototype_ruin_6x5: {
-    id: "prototype_ruin_6x5",
-    type: "ruin",
-    color: "gray",
-    w: 6 * INCH,
-    h: 5 * INCH,
-    wallType: "none"
-  },
-
-  /* ===== CONTAINERS ===== */
-
-  armoured_container_5x2_5: {
-    id: "armoured_container_5x2_5",
-    type: "container",
-    color: "gray",
-    w: 5 * INCH,
-    h: 2.5 * INCH,
-    wallType: "box"
-  }
-};
-
-/* ===== WALL HELPERS ===== */
-
-export function buildLWalls(w, h) {
-  return [
-    [[0, 0], [w, 0]],
-    [[0, 0], [0, h]]
-  ];
-}
-
-export function buildBoxWalls(w, h) {
-  return [
-    [[0, 0], [w, 0]],
-    [[w, 0], [w, h]],
-    [[w, h], [0, h]],
-    [[0, h], [0, 0]]
-  ];
-}
+</body>
+</html>
