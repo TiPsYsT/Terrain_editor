@@ -1,1 +1,19 @@
+body {
+  margin: 0;
+  font-family: sans-serif;
+}
+
+#toolbar {
+  padding: 8px;
+  background: #222;
+}
+
+#toolbar button {
+  margin-right: 6px;
+}
+
+canvas {
+  display: block;
+  background: #eee;
+}
 
