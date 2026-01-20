@@ -46,19 +46,20 @@ export function buildWTCLWalls(w, h) {
 
   return [
     // Horisontell del
-    // Visuellt: 2 rutor in p.g.a. tjocklek
+    // - flyttad 0.5 ruta åt vänster
+    // - slutar 1.5 rutor innan högerkant
     [
-      [1 * r, 1 * r],
-      [w - 0.5 * r, 1 * r]
+      [0.5 * r, 1 * r],
+      [w - 1.5 * r, 1 * r]
     ],
 
-    // Vertikal del
-    // Slutar 7/8 in i sista rutan
+    // Vertikal del (ORÖRD – redan korrekt)
     [
       [1 * r, 1 * r],
       [1 * r, h - (1 / 8) * r]
     ]
   ];
 }
+
 
 
