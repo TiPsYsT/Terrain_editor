@@ -45,15 +45,23 @@ export function buildWTCLWalls(w, h) {
   const r = INCH;
 
   return [
-    // horisontell del
+    // Horisontell del
+    // start: 2 rutor in
+    // y: 1 ruta ner
+    // längd: till 0.5 ruta från högerkant
     [
       [2 * r, 1 * r],
-      [w - 1 * r, 1 * r]
+      [w - 0.5 * r, 1 * r]
     ],
-    // vertikal del
+
+    // Vertikal del
+    // x: 1 ruta in
+    // start: 1 ruta ner
+    // slut: 7/8 in i sista rutan
     [
       [1 * r, 1 * r],
       [1 * r, h - (1 / 8) * r]
     ]
   ];
 }
+
