@@ -22,14 +22,10 @@ function snap(v) {
 function addTerrain(typeId) {
   const t = TERRAIN_TYPES[typeId];
 
-  const walls =
-    t.kind === "ruin" && typeId !== "prototype_ruin_6x5"
-      ? buildWTCLWalls(t.w, t.h)
-      : [];
+  const walls = t.hasLWalls ? buildWTCLWalls(t.w, t.h) : [];
 
   pieces.push({
     type: t.id,
-    kind: t.kind,
     color: t.color,
     x: snap(100),
     y: snap(100),
