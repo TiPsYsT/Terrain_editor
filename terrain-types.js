@@ -2,13 +2,11 @@ export const INCH = 25.4;
 
 /*
   ENDA SANNINGEN:
-  - Samma footprint (12x6) men OLIKA TYPER + FÄRG
-  - Färg används i render, inte regler
+  - endast geometri
+  - färg = visuell identitet
 */
 
 export const TERRAIN_TYPES = {
-  /* ===== RUINS ===== */
-
   two_storey_ruin_12x6: {
     id: "two_storey_ruin_12x6",
     type: "ruin",
@@ -36,8 +34,6 @@ export const TERRAIN_TYPES = {
     wallType: "none"
   },
 
-  /* ===== CONTAINERS ===== */
-
   armoured_container_5x2_5: {
     id: "armoured_container_5x2_5",
     type: "container",
@@ -47,8 +43,6 @@ export const TERRAIN_TYPES = {
     wallType: "box"
   }
 };
-
-/* ===== WALL HELPERS ===== */
 
 export function buildLWalls(w, h) {
   return [
