@@ -1,7 +1,6 @@
 import {
   TERRAIN_TYPES,
-  buildLWalls,
-  buildBoxWalls,
+  buildWTCLWalls,
   INCH
 } from "./terrain-types.js";
 
@@ -24,12 +23,13 @@ function addTerrain(typeId) {
   const t = TERRAIN_TYPES[typeId];
 
   const walls =
-    t.wallType === "L" ? buildLWalls(t.w, t.h) :
-    t.wallType === "box" ? buildBoxWalls(t.w, t.h) :
-    [];
+    t.kind === "ruin" && typeId !== "prototype_ruin_6x5"
+      ? buildWTCLWalls(t.w, t.h)
+      : [];
 
   pieces.push({
     type: t.id,
+    kind: t.kind,
     color: t.color,
     x: snap(100),
     y: snap(100),
@@ -48,6 +48,8 @@ function draw() {
   pieces.forEach(p => drawPiece(ctx, p));
 }
 
+/* ---------- MOUSE ---------- */
+
 canvas.onmousedown = e => {
   const x = e.offsetX;
   const y = e.offsetY;
@@ -65,6 +67,7 @@ canvas.onmousedown = e => {
 
 canvas.onmousemove = e => {
   if (!dragging || !selected) return;
+
   selected.x = snap(e.offsetX - offset.x);
   selected.y = snap(e.offsetY - offset.y);
   draw();
@@ -72,7 +75,7 @@ canvas.onmousemove = e => {
 
 canvas.onmouseup = () => dragging = false;
 
-/* UI */
+/* ---------- UI ---------- */
 
 document.getElementById("add-two").onclick = () =>
   addTerrain("two_storey_ruin_12x6");
