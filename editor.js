@@ -17,8 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let dragging = false;
   let offset = { x: 0, y: 0 };
 
-  const ROT_STEP = 22.5; // 👈 NYTT
-
   function snap(v) {
     return Math.round(v / INCH) * INCH;
   }
@@ -79,6 +77,14 @@ document.addEventListener("DOMContentLoaded", () => {
     dragging = false;
   };
 
+  /* ---------- ROTATION ---------- */
+
+  function rotate(deg) {
+    if (!selected) return;
+    selected.rotation += deg;
+    draw();
+  }
+
   /* ---------- UI ---------- */
 
   document.getElementById("two").onclick =
@@ -99,19 +105,17 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("cont").onclick =
     () => addTerrain("container");
 
-  document.getElementById("rot-left").onclick = () => {
-    if (selected) {
-      selected.rotation -= ROT_STEP;
-      draw();
-    }
-  };
+  // fine
+  document.getElementById("rot-l-11").onclick = () => rotate(-11.25);
+  document.getElementById("rot-r-11").onclick = () => rotate(+11.25);
 
-  document.getElementById("rot-right").onclick = () => {
-    if (selected) {
-      selected.rotation += ROT_STEP;
-      draw();
-    }
-  };
+  // medium
+  document.getElementById("rot-l-22").onclick = () => rotate(-22.5);
+  document.getElementById("rot-r-22").onclick = () => rotate(+22.5);
+
+  // coarse
+  document.getElementById("rot-l-45").onclick = () => rotate(-45);
+  document.getElementById("rot-r-45").onclick = () => rotate(+45);
 
   document.getElementById("export").onclick =
     () => exportJSON(pieces);
