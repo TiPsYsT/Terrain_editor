@@ -35,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (t.l === "normal") walls = buildL(t.w, t.h);
     if (t.l === "mirrored") walls = buildLInv(t.w, t.h);
 
-    pieces.push({
+    selected = {
       type: t.id,
       color: t.color,
       x: snap(100),
@@ -44,8 +44,9 @@ document.addEventListener("DOMContentLoaded", () => {
       h: t.h,
       rotation: 0,
       walls
-    });
+    };
 
+    pieces.push(selected);
     draw();
   }
 
@@ -86,7 +87,16 @@ document.addEventListener("DOMContentLoaded", () => {
     draw();
   }
 
-  /* ---------- SAFE BUTTON BIND ---------- */
+  /* ---------- DELETE ---------- */
+
+  function deleteSelected() {
+    if (!selected) return;
+    pieces = pieces.filter(p => p !== selected);
+    selected = null;
+    draw();
+  }
+
+  /* ---------- SAFE BIND ---------- */
 
   function bind(id, fn) {
     const el = document.getElementById(id);
@@ -102,20 +112,15 @@ document.addEventListener("DOMContentLoaded", () => {
   bind("proto", () => addTerrain("prototype"));
   bind("cont", () => addTerrain("container"));
 
-  // fine
   bind("rot-l-11", () => rotate(-11.25));
   bind("rot-r-11", () => rotate(+11.25));
-
-  // medium
   bind("rot-l-22", () => rotate(-22.5));
   bind("rot-r-22", () => rotate(+22.5));
-
-  // coarse
   bind("rot-l-45", () => rotate(-45));
   bind("rot-r-45", () => rotate(+45));
 
+  bind("delete", deleteSelected);
   bind("export", () => exportJSON(pieces));
 
-  /* ---------- INIT ---------- */
   draw();
 });
