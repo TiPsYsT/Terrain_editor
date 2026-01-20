@@ -43,21 +43,20 @@ export const TERRAIN_TYPES = {
 /* ===== EXAKT WTC L-VÄGG ===== */
 export function buildWTCLWalls(w, h) {
   const r = INCH;
-  const t = INCH; // väggtjocklek = 1 ruta
 
   return [
     // Horisontell vägg
-    // börjar 1 väggtjocklek IN I vertikalen
-    // längd = 9 + 1/8 rutor + tjocklek
+    // går in 0.5 ruta i vertikalen (inte 1)
     [
-      [1 * r - t, 1 * r],
+      [1 * r - 0.5 * r, 1 * r],
       [(1 + 9 + 1/8) * r, 1 * r]
     ],
 
-    // Vertikal vägg (oförändrad)
+    // Vertikal vägg (korrekt, rör ej)
     [
       [1 * r, 1 * r],
       [1 * r, h - (1 / 8) * r]
     ]
   ];
 }
+
