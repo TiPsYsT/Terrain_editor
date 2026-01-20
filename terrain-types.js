@@ -46,17 +46,18 @@ export function buildWTCLWalls(w, h) {
 
   return [
     // Horisontell del
-    // start exakt där vertikala börjar
-    // längd = 1/8 + 9 rutor
+    // startar EXAKT där vertikala startar
+    // längd = 9 + 1/8 rutor
     [
       [1 * r, 1 * r],
-      [(10 + 1/8) * r, 1 * r]
+      [(1 + 9 + 1/8) * r, 1 * r]
     ],
 
-    // Vertikal del (oförändrad, korrekt)
+    // Vertikal del (redan korrekt)
     [
       [1 * r, 1 * r],
       [1 * r, h - (1 / 8) * r]
     ]
   ];
 }
+
