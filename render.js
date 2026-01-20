@@ -29,26 +29,44 @@ export function drawPiece(ctx, p) {
   ctx.rotate(rot);
   ctx.translate(-p.w / 2, -p.h / 2);
 
+  // FILL
   ctx.fillStyle =
     p.color === "red" ? "rgba(220,80,80,0.55)" :
     p.color === "blue" ? "rgba(80,120,220,0.55)" :
     "rgba(160,160,160,0.6)";
 
   ctx.fillRect(0, 0, p.w, p.h);
+
+  // OUTLINE (tunn, alltid)
   ctx.strokeStyle = "black";
+  ctx.lineWidth = 2;
   ctx.strokeRect(0, 0, p.w, p.h);
 
-  const t = INCH;
-  ctx.fillStyle = "#666";
+  // WTC L-VÄGGAR – ENDAST RUINS
+  if (p.kind === "ruin") {
+    const t = INCH;
+    ctx.fillStyle = "#666";
 
-  (p.walls || []).forEach(w => {
-    const [[x1, y1], [x2, y2]] = w;
-    if (x1 === x2) {
-      ctx.fillRect(x1 - t / 2, Math.min(y1, y2), t, Math.abs(y2 - y1));
-    } else {
-      ctx.fillRect(Math.min(x1, x2), y1 - t / 2, Math.abs(x2 - x1), t);
-    }
-  });
+    (p.walls || []).forEach(w => {
+      const [[x1, y1], [x2, y2]] = w;
+
+      if (x1 === x2) {
+        ctx.fillRect(
+          x1 - t / 2,
+          Math.min(y1, y2),
+          t,
+          Math.abs(y2 - y1)
+        );
+      } else {
+        ctx.fillRect(
+          Math.min(x1, x2),
+          y1 - t / 2,
+          Math.abs(x2 - x1),
+          t
+        );
+      }
+    });
+  }
 
   ctx.restore();
 }
