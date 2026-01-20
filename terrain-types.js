@@ -2,61 +2,74 @@ export const INCH = 25.4;
 
 /*
   Enda sanningen:
-  - endast geometri
-  - färg = visuell identitet
+  - samma footprint
+  - olika L-orientering
 */
 
 export const TERRAIN_TYPES = {
-  two_storey_ruin_12x6: {
-    id: "two_storey_ruin_12x6",
+  two_red: {
+    id: "two_storey_red",
     color: "red",
     w: 12 * INCH,
     h: 6 * INCH,
-    hasLWalls: true
+    l: "normal"
   },
 
-  three_storey_ruin_12x6: {
-    id: "three_storey_ruin_12x6",
+  two_red_inv: {
+    id: "two_storey_red_inv",
+    color: "red",
+    w: 12 * INCH,
+    h: 6 * INCH,
+    l: "mirrored"
+  },
+
+  three_blue: {
+    id: "three_storey_blue",
     color: "blue",
     w: 12 * INCH,
     h: 6 * INCH,
-    hasLWalls: true
+    l: "normal"
   },
 
-  prototype_ruin_6x5: {
-    id: "prototype_ruin_6x5",
+  three_blue_inv: {
+    id: "three_storey_blue_inv",
+    color: "blue",
+    w: 12 * INCH,
+    h: 6 * INCH,
+    l: "mirrored"
+  },
+
+  prototype: {
+    id: "prototype_ruin",
     color: "gray",
     w: 6 * INCH,
     h: 5 * INCH,
-    hasLWalls: false
+    l: "none"
   },
 
-  armoured_container_5x2_5: {
-    id: "armoured_container_5x2_5",
+  container: {
+    id: "container",
     color: "gray",
     w: 5 * INCH,
     h: 2.5 * INCH,
-    hasLWalls: false
+    l: "none"
   }
 };
 
-/* ===== EXAKT WTC L-VÄGG ===== */
-export function buildWTCLWalls(w, h) {
+/* ===== L-väggar ===== */
+
+export function buildL(w, h) {
   const r = INCH;
-
   return [
-    // Horisontell vägg
-    // går in 0.5 ruta i vertikalen (inte 1)
-    [
-      [1 * r - 0.5 * r, 1 * r],
-      [(1 + 9 + 1/8) * r, 1 * r]
-    ],
-
-    // Vertikal vägg (korrekt, rör ej)
-    [
-      [1 * r, 1 * r],
-      [1 * r, h - (1 / 8) * r]
-    ]
+    [[1 * r - 0.5 * r, 1 * r], [(1 + 9 + 1 / 8) * r, 1 * r]],
+    [[1 * r, 1 * r], [1 * r, h - (1 / 8) * r]]
   ];
 }
 
+export function buildLInv(w, h) {
+  const r = INCH;
+  return [
+    [[w - (1 + 9 + 1 / 8) * r, 1 * r], [w - (1 * r - 0.5 * r), 1 * r]],
+    [[w - 1 * r, 1 * r], [w - 1 * r, h - (1 / 8) * r]]
+  ];
+}
