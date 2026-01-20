@@ -17,6 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   let dragging = false;
   let offset = { x: 0, y: 0 };
 
+  const ROT_STEP = 22.5; // 👈 NYTT
+
   function snap(v) {
     return Math.round(v / INCH) * INCH;
   }
@@ -77,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dragging = false;
   };
 
-  /* ---------- UI BUTTONS ---------- */
+  /* ---------- UI ---------- */
 
   document.getElementById("two").onclick =
     () => addTerrain("two_red");
@@ -99,14 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("rot-left").onclick = () => {
     if (selected) {
-      selected.rotation -= 45;
+      selected.rotation -= ROT_STEP;
       draw();
     }
   };
 
   document.getElementById("rot-right").onclick = () => {
     if (selected) {
-      selected.rotation += 45;
+      selected.rotation += ROT_STEP;
       draw();
     }
   };
@@ -115,5 +117,5 @@ document.addEventListener("DOMContentLoaded", () => {
     () => exportJSON(pieces);
 
   /* ---------- INIT ---------- */
-  draw(); // ← detta gör att rutnätet syns direkt
+  draw();
 });
