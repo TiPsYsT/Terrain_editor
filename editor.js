@@ -1,5 +1,6 @@
 import {
   TERRAIN_TYPES,
+  DEPLOYMENTS,
   buildL,
   buildLInv,
   INCH
@@ -8,7 +9,8 @@ import {
 import {
   drawGrid,
   drawPiece,
-  drawObjectives
+  drawObjectives,
+  drawDeployment
 } from "./render.js";
 
 import { exportJSON } from "./export.js";
@@ -17,24 +19,36 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
 
-  let pieces = [];
+  /* ================= STATE ================= */
+
+  let terrain = {
+    deployment: null,
+    pieces: []
+  };
+
   let objectives = [];
 
   let selected = null;
   let selectedObj = null;
   let dragging = false;
-  let mode = "terrain";
+  let mode = "terrain"; // terrain | objective
   let offset = { x: 0, y: 0 };
+
+  /* ================= HELPERS ================= */
 
   const snapMM = v => Math.round(v / INCH) * INCH;
   const snapIn = v => Math.round(v);
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawGrid(ctx, canvas.width, canvas.height);
-    pieces.forEach(p => drawPiece(ctx, p));
+    drawDeployment(ctx, terrain.deployment);
+    terrain.pieces.forEach(p => drawPiece(ctx, p));
     drawObjectives(ctx, objectives);
   }
+
+  /* ================= TERRAIN ================= */
 
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
@@ -55,11 +69,13 @@ document.addEventListener("DOMContentLoaded", () => {
       walls
     };
 
-    pieces.push(selected);
+    terrain.pieces.push(selected);
     selectedObj = null;
     mode = "terrain";
     draw();
   }
+
+  /* ================= OBJECTIVES ================= */
 
   function hitObjective(x, y) {
     return objectives.findIndex(o =>
@@ -67,10 +83,13 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  /* ================= MOUSE ================= */
+
   canvas.onmousedown = e => {
     const x = e.offsetX;
     const y = e.offsetY;
 
+    // objective hit
     const oi = hitObjective(x, y);
     if (oi !== -1) {
       selectedObj = oi;
@@ -82,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // objective placement
     if (mode === "objective") {
       if (objectives.length < 5) {
         objectives.push({
@@ -93,7 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    selected = [...pieces].reverse().find(
+    // terrain hit
+    selected = [...terrain.pieces].reverse().find(
       p => x >= p.x && x <= p.x + p.w &&
            y >= p.y && y <= p.y + p.h
     );
@@ -128,6 +149,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvas.onmouseup = () => dragging = false;
 
+  /* ================= ROTATION ================= */
+
   function rotate(dir) {
     if (!selected) return;
     const step = window.event.shiftKey ? 1 : 5;
@@ -135,17 +158,23 @@ document.addEventListener("DOMContentLoaded", () => {
     draw();
   }
 
+  /* ================= DELETE ================= */
+
   function deleteSelected() {
     if (selected) {
-      pieces = pieces.filter(p => p !== selected);
+      terrain.pieces = terrain.pieces.filter(p => p !== selected);
       selected = null;
     }
+
     if (selectedObj !== null) {
       objectives.splice(selectedObj, 1);
       selectedObj = null;
     }
+
     draw();
   }
+
+  /* ================= UI ================= */
 
   const bind = (id, fn) =>
     document.getElementById(id)?.addEventListener("click", fn);
@@ -161,10 +190,25 @@ document.addEventListener("DOMContentLoaded", () => {
   bind("rot-r", () => rotate(1));
 
   bind("add-obj", () => mode = "objective");
-  bind("del-obj", () => selectedObj !== null && deleteSelected());
+  bind("del-obj", deleteSelected);
+
+  bind("dep-ha", () => {
+    terrain.deployment = DEPLOYMENTS.hammer_anvil;
+    draw();
+  });
+
+  bind("dep-dow", () => {
+    terrain.deployment = DEPLOYMENTS.dawn_of_war;
+    draw();
+  });
+
+  bind("dep-off", () => {
+    terrain.deployment = null;
+    draw();
+  });
 
   bind("delete", deleteSelected);
-  bind("export", () => exportJSON(pieces, objectives));
+  bind("export", () => exportJSON(terrain, objectives));
 
   draw();
 });
