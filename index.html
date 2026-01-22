@@ -35,13 +35,14 @@
       background: #444;
     }
 
-    #controls .group {
+    .group {
       display: flex;
       gap: 4px;
+      align-items: center;
       margin-right: 10px;
     }
 
-    #controls .label {
+    .label {
       font-size: 12px;
       color: #aaa;
       margin-right: 4px;
@@ -60,10 +61,10 @@
   <!-- TERRAIN -->
   <div class="group">
     <span class="label">Terrain</span>
-    <button id="two">2-storey (red)</button>
-    <button id="two-inv">2-storey (red, inv)</button>
-    <button id="three">3-storey (blue)</button>
-    <button id="three-inv">3-storey (blue, inv)</button>
+    <button id="two">2-storey red</button>
+    <button id="two-inv">2-storey red (inv)</button>
+    <button id="three">3-storey blue</button>
+    <button id="three-inv">3-storey blue (inv)</button>
     <button id="proto">Prototype</button>
     <button id="cont">Container</button>
   </div>
@@ -73,7 +74,7 @@
     <span class="label">Rotate</span>
     <button id="rot-l">⟲</button>
     <button id="rot-r">⟳</button>
-    <span class="label">(5° / Shift = 1°)</span>
+    <span class="label">5° / Shift = 1°</span>
   </div>
 
   <!-- OBJECTIVES -->
@@ -81,6 +82,14 @@
     <span class="label">Objectives</span>
     <button id="add-obj">Add</button>
     <button id="del-obj">Delete</button>
+  </div>
+
+  <!-- DEPLOYMENT -->
+  <div class="group">
+    <span class="label">Deployment</span>
+    <button id="dep-ha">Hammer & Anvil</button>
+    <button id="dep-dow">Dawn of War</button>
+    <button id="dep-off">Off</button>
   </div>
 
   <!-- ACTIONS -->
