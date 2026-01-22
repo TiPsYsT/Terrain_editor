@@ -8,10 +8,12 @@ export function drawGrid(ctx, w, h) {
   ctx.fillStyle = "#000";
   ctx.font = "12px sans-serif";
 
-  const cols = Math.floor(w / INCH);
-  const rows = Math.floor(h / INCH);
+  const cols = Math.round(w / INCH); // 60
+  const rows = Math.round(h / INCH); // 44
+  const midX = cols / 2;             // 30
+  const midY = rows / 2;             // 22
 
-  // Vertikala linjer + X-siffror
+  // VERTIKALA LINJER (X)
   for (let i = 0; i <= cols; i++) {
     const x = i * INCH;
 
@@ -21,13 +23,16 @@ export function drawGrid(ctx, w, h) {
     ctx.lineTo(x, h);
     ctx.stroke();
 
-    if (i % 5 === 0) {
-      ctx.fillText(i, x + 2, 12);          // topp
-      ctx.fillText(i, x + 2, h - 4);       // botten
+    // Numrering: 0 → 30 → 0
+    let label = i <= midX ? i : cols - i;
+
+    if (i % 5 === 0 || i === midX) {
+      ctx.fillText(label, x + 2, 12);
+      ctx.fillText(label, x + 2, h - 4);
     }
   }
 
-  // Horisontella linjer + Y-siffror
+  // HORISONTELLA LINJER (Y)
   for (let i = 0; i <= rows; i++) {
     const y = i * INCH;
 
@@ -37,9 +42,12 @@ export function drawGrid(ctx, w, h) {
     ctx.lineTo(w, y);
     ctx.stroke();
 
-    if (i % 5 === 0) {
-      ctx.fillText(i, 2, y - 2);           // vänster
-      ctx.fillText(i, w - 24, y - 2);      // höger
+    // Numrering: 0 → 22 → 0
+    let label = i <= midY ? i : rows - i;
+
+    if (i % 5 === 0 || i === midY) {
+      ctx.fillText(label, 2, y - 2);
+      ctx.fillText(label, w - 26, y - 2);
     }
   }
 
@@ -58,7 +66,6 @@ export function drawPiece(ctx, p) {
   ctx.rotate(rot);
   ctx.translate(-p.w / 2, -p.h / 2);
 
-  // fill
   ctx.fillStyle =
     p.color === "red"  ? "rgba(220,80,80,0.55)" :
     p.color === "blue" ? "rgba(80,120,220,0.55)" :
@@ -66,35 +73,20 @@ export function drawPiece(ctx, p) {
 
   ctx.fillRect(0, 0, p.w, p.h);
 
-  // outline
   ctx.strokeStyle = "black";
   ctx.lineWidth = 2;
   ctx.strokeRect(0, 0, p.w, p.h);
 
-  // walls (1" tjocka)
-  if (Array.isArray(p.walls) && p.walls.length > 0) {
+  if (Array.isArray(p.walls)) {
     const t = INCH;
     ctx.fillStyle = "#666";
 
     p.walls.forEach(w => {
       const [[x1, y1], [x2, y2]] = w;
-
       if (x1 === x2) {
-        // vertikal vägg
-        ctx.fillRect(
-          x1 - t / 2,
-          Math.min(y1, y2),
-          t,
-          Math.abs(y2 - y1)
-        );
+        ctx.fillRect(x1 - t / 2, Math.min(y1, y2), t, Math.abs(y2 - y1));
       } else {
-        // horisontell vägg
-        ctx.fillRect(
-          Math.min(x1, x2),
-          y1 - t / 2,
-          Math.abs(x2 - x1),
-          t
-        );
+        ctx.fillRect(Math.min(x1, x2), y1 - t / 2, Math.abs(x2 - x1), t);
       }
     });
   }
@@ -107,23 +99,23 @@ export function drawPiece(ctx, p) {
 export function drawObjectives(ctx, objectives = []) {
   ctx.save();
 
-  objectives.forEach(o => {
-    // o.x / o.y är i INCH
+  objectives.forEach((o, i) => {
     const x = o.x * INCH;
     const y = o.y * INCH;
 
-    // objective
     ctx.beginPath();
     ctx.fillStyle = "gold";
     ctx.arc(x, y, 20, 0, Math.PI * 2);
     ctx.fill();
 
-    // control range
-    ctx.beginPath();
     ctx.strokeStyle = "black";
     ctx.lineWidth = 2;
-    ctx.arc(x, y, 76, 0, Math.PI * 2);
     ctx.stroke();
+
+    // nummer 1–5
+    ctx.fillStyle = "#000";
+    ctx.font = "bold 14px sans-serif";
+    ctx.fillText(i + 1, x - 4, y + 5);
   });
 
   ctx.restore();
