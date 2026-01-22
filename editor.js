@@ -13,44 +13,28 @@ import {
 
 import { exportJSON } from "./export.js";
 
-/* ================= INIT ================= */
-
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
 
-  /* ================= STATE ================= */
-
   let pieces = [];
   let objectives = [];
 
-  let selected = null;          // terrain piece
-  let selectedObj = null;       // objective index
-
+  let selected = null;
+  let selectedObj = null;
   let dragging = false;
-  let mode = "terrain";         // "terrain" | "objective"
-
+  let mode = "terrain";
   let offset = { x: 0, y: 0 };
 
-  /* ================= HELPERS ================= */
-
-  function snap(v) {
-    return Math.round(v / INCH) * INCH;
-  }
-
-  function snapInch(v) {
-    return Math.round(v);
-  }
+  const snapMM = v => Math.round(v / INCH) * INCH;
+  const snapIn = v => Math.round(v);
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
     drawGrid(ctx, canvas.width, canvas.height);
     pieces.forEach(p => drawPiece(ctx, p));
     drawObjectives(ctx, objectives);
   }
-
-  /* ================= TERRAIN ================= */
 
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
@@ -60,14 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (t.l === "normal") walls = buildL(t.w, t.h);
     if (t.l === "mirrored") walls = buildLInv(t.w, t.h);
 
-    selectedObj = null;
-    mode = "terrain";
-
     selected = {
       type: t.id,
       color: t.color,
-      x: snap(100),
-      y: snap(100),
+      x: snapMM(100),
+      y: snapMM(100),
       w: t.w,
       h: t.h,
       rotation: 0,
@@ -75,43 +56,43 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     pieces.push(selected);
-    draw();
-  }
-
-  /* ================= OBJECTIVES ================= */
-
-  function addObjectiveAt(x, y) {
-    if (objectives.length >= 5) return;
-
-    objectives.push({
-      x: snapInch(x / INCH),
-      y: snapInch(y / INCH)
-    });
-
-    selectedObj = objectives.length - 1;
-    selected = null;
-    draw();
-  }
-
-  function deleteObjective() {
-    if (selectedObj === null) return;
-    objectives.splice(selectedObj, 1);
     selectedObj = null;
+    mode = "terrain";
     draw();
   }
 
-  /* ================= MOUSE ================= */
+  function hitObjective(x, y) {
+    return objectives.findIndex(o =>
+      Math.hypot(x - o.x * INCH, y - o.y * INCH) <= 20
+    );
+  }
 
   canvas.onmousedown = e => {
     const x = e.offsetX;
     const y = e.offsetY;
 
-    if (mode === "objective") {
-      addObjectiveAt(x, y);
+    const oi = hitObjective(x, y);
+    if (oi !== -1) {
+      selectedObj = oi;
+      selected = null;
+      dragging = true;
+      offset.x = x - objectives[oi].x * INCH;
+      offset.y = y - objectives[oi].y * INCH;
+      draw();
       return;
     }
 
-    // terrain hit test
+    if (mode === "objective") {
+      if (objectives.length < 5) {
+        objectives.push({
+          x: snapIn(x / INCH),
+          y: snapIn(y / INCH)
+        });
+      }
+      draw();
+      return;
+    }
+
     selected = [...pieces].reverse().find(
       p => x >= p.x && x <= p.x + p.w &&
            y >= p.y && y <= p.y + p.h
@@ -129,18 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   canvas.onmousemove = e => {
-    if (!dragging || !selected) return;
+    if (!dragging) return;
 
-    selected.x = snap(e.offsetX - offset.x);
-    selected.y = snap(e.offsetY - offset.y);
-    draw();
+    if (selectedObj !== null) {
+      objectives[selectedObj].x = snapIn((e.offsetX - offset.x) / INCH);
+      objectives[selectedObj].y = snapIn((e.offsetY - offset.y) / INCH);
+      draw();
+      return;
+    }
+
+    if (selected) {
+      selected.x = snapMM(e.offsetX - offset.x);
+      selected.y = snapMM(e.offsetY - offset.y);
+      draw();
+    }
   };
 
-  canvas.onmouseup = () => {
-    dragging = false;
-  };
-
-  /* ================= ROTATION ================= */
+  canvas.onmouseup = () => dragging = false;
 
   function rotate(dir) {
     if (!selected) return;
@@ -149,44 +135,34 @@ document.addEventListener("DOMContentLoaded", () => {
     draw();
   }
 
-  /* ================= DELETE ================= */
-
   function deleteSelected() {
     if (selected) {
       pieces = pieces.filter(p => p !== selected);
       selected = null;
     }
+    if (selectedObj !== null) {
+      objectives.splice(selectedObj, 1);
+      selectedObj = null;
+    }
     draw();
   }
 
-  /* ================= UI BIND ================= */
+  const bind = (id, fn) =>
+    document.getElementById(id)?.addEventListener("click", fn);
 
-  function bind(id, fn) {
-    const el = document.getElementById(id);
-    if (el) el.onclick = fn;
-  }
+  bind("two", () => addTerrain("two_red"));
+  bind("two-inv", () => addTerrain("two_red_inv"));
+  bind("three", () => addTerrain("three_blue"));
+  bind("three-inv", () => addTerrain("three_blue_inv"));
+  bind("proto", () => addTerrain("prototype"));
+  bind("cont", () => addTerrain("container"));
 
-  /* ----- terrain ----- */
-  bind("two",      () => addTerrain("two_red"));
-  bind("two-inv",  () => addTerrain("two_red_inv"));
-  bind("three",    () => addTerrain("three_blue"));
-  bind("three-inv",() => addTerrain("three_blue_inv"));
-  bind("proto",    () => addTerrain("prototype"));
-  bind("cont",     () => addTerrain("container"));
-
-  /* ----- rotation ----- */
   bind("rot-l", () => rotate(-1));
-  bind("rot-r", () => rotate(+1));
+  bind("rot-r", () => rotate(1));
 
-  /* ----- objectives ----- */
-  bind("add-obj", () => {
-    mode = "objective";
-    selected = null;
-  });
+  bind("add-obj", () => mode = "objective");
+  bind("del-obj", () => selectedObj !== null && deleteSelected());
 
-  bind("del-obj", deleteObjective);
-
-  /* ----- actions ----- */
   bind("delete", deleteSelected);
   bind("export", () => exportJSON(pieces, objectives));
 
