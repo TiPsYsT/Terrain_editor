@@ -1,56 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Terrain Editor</title>
+<meta charset="UTF-8" />
+<title>Terrain Editor</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #111;
-      color: #eee;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: sans-serif;
+  background: #111;
+  color: #eee;
+}
 
-    #controls {
-      padding: 10px;
-      background: #222;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      border-bottom: 1px solid #444;
-    }
+#controls {
+  padding: 10px;
+  background: #222;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  border-bottom: 1px solid #444;
+}
 
-    button {
-      padding: 6px 10px;
-      background: #333;
-      color: #eee;
-      border: 1px solid #555;
-      cursor: pointer;
-    }
+button {
+  padding: 6px 10px;
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  cursor: pointer;
+}
 
-    button:hover { background: #444; }
+button:hover { background: #444; }
 
-    .group {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      margin-right: 10px;
-    }
+.group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  margin-right: 10px;
+}
 
-    .label {
-      font-size: 12px;
-      color: #aaa;
-      margin-right: 4px;
-    }
+.label {
+  font-size: 12px;
+  color: #aaa;
+}
 
-    canvas {
-      display: block;
-      background: #eee;
-    }
-  </style>
+canvas {
+  display: block;
+  background: #eee;
+}
+</style>
 </head>
+
 <body>
 
 <div id="controls">
@@ -69,6 +69,7 @@
     <span class="label">Rotate</span>
     <button id="rot-l">⟲</button>
     <button id="rot-r">⟳</button>
+    <span class="label">Shift = 1°</span>
   </div>
 
   <div class="group">
