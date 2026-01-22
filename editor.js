@@ -22,10 +22,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let terrain = { pieces: [] };
   let objectives = [];
 
-  // DEPLOYMENT LINES (PERSISTENT)
-  let deployment = [];            // ← SANNINGEN
-  let deployMode = null;          // "player" | "enemy"
-  let deployStart = null;         // ← ENDAST PREVIEW
+  // deployment = LINJER
+  let deployment = [];
+  let deployMode = null;   // "player" | "enemy"
+  let deployStart = null;  // preview only
 
   let selected = null;
   let dragging = false;
@@ -35,10 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const snapMM = v => Math.round(v / INCH) * INCH;
   const snapIn = v => Math.round(v);
 
+  let mouseX = 0;
+  let mouseY = 0;
+
   /* ================= DRAW ================= */
 
   function drawDeployment() {
-    // PERMANENTA LINJER
+    // saved lines
     deployment.forEach(d => {
       ctx.strokeStyle = d.type === "player" ? "blue" : "red";
       ctx.lineWidth = 4;
@@ -48,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.stroke();
     });
 
-    // PREVIEW-LINJE (tillfällig)
+    // preview
     if (deployStart) {
       ctx.strokeStyle = deployMode === "player" ? "blue" : "red";
       ctx.lineWidth = 2;
@@ -58,8 +61,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.stroke();
     }
   }
-
-  let mouseX = 0, mouseY = 0;
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -92,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     terrain.pieces.push(selected);
 
-    // ⬇️ VIKTIGT: rör INTE deployment[]
+    // deployment stays intact
     deployMode = null;
     deployStart = null;
 
@@ -105,12 +106,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const x = snapMM(e.offsetX);
     const y = snapMM(e.offsetY);
 
-    // DEPLOYMENT (KLICK–KLICK)
+    // DEPLOYMENT
     if (deployMode) {
       if (!deployStart) {
         deployStart = [x, y];
       } else {
-        // ⬇️ SPARAS PERMANENT
         deployment.push({
           type: deployMode,
           a: deployStart,
@@ -162,13 +162,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const bind = (id, fn) =>
     document.getElementById(id)?.addEventListener("click", fn);
 
-  // TERRAIN
-  bind("two", () => addTerrain("two_red"));
-  bind("two-inv", () => addTerrain("two_red_inv"));
-  bind("three", () => addTerrain("three_blue"));
-  bind("three-inv", () => addTerrain("three_blue_inv"));
-  bind("proto", () => addTerrain("prototype"));
-  bind("cont", () => addTerrain("container"));
+  // TERRAIN – RÄTT KEYS
+  bind("two",      () => addTerrain("two_red"));
+  bind("two-inv",  () => addTerrain("two_red_inv"));
+  bind("three",    () => addTerrain("three_blue"));
+  bind("three-inv",() => addTerrain("three_blue_inv"));
+  bind("proto",    () => addTerrain("prototype"));
+  bind("cont",     () => addTerrain("container"));
 
   // ROTATION
   bind("rot-l", () => selected && (selected.rotation -= 5, draw()));
@@ -178,25 +178,12 @@ document.addEventListener("DOMContentLoaded", () => {
   bind("add-obj", () => mode = "objective");
   bind("del-obj", () => objectives.pop() && draw());
 
-  // DEPLOYMENT (RÖR INTE deployment[])
-  bind("dep-player", () => {
-    deployMode = "player";
-    deployStart = null;
-  });
-
-  bind("dep-enemy", () => {
-    deployMode = "enemy";
-    deployStart = null;
-  });
-
-  bind("dep-cancel", () => {
-    deployMode = null;
-    deployStart = null;
-    draw();
-  });
-
-  bind("dep-clear", () => {
-    deployment.length = 0;   // ← ENDA STÄLLET SOM RENSAR
+  // DEPLOYMENT
+  bind("dep-player", () => { deployMode = "player"; deployStart = null; });
+  bind("dep-enemy",  () => { deployMode = "enemy";  deployStart = null; });
+  bind("dep-cancel", () => { deployMode = null; deployStart = null; draw(); });
+  bind("dep-clear",  () => {
+    deployment.length = 0;
     deployStart = null;
     draw();
   });
@@ -212,8 +199,8 @@ document.addEventListener("DOMContentLoaded", () => {
   bind("export", () =>
     exportJSON({
       terrain,
-      deployment,
-      objectives
+      objectives,
+      deployment
     })
   );
 
