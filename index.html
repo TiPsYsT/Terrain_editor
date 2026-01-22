@@ -22,18 +22,15 @@
       border-bottom: 1px solid #444;
     }
 
-    #controls button {
+    button {
       padding: 6px 10px;
-      cursor: pointer;
       background: #333;
       color: #eee;
       border: 1px solid #555;
-      font-size: 13px;
+      cursor: pointer;
     }
 
-    #controls button:hover {
-      background: #444;
-    }
+    button:hover { background: #444; }
 
     .group {
       display: flex;
@@ -58,41 +55,34 @@
 
 <div id="controls">
 
-  <!-- TERRAIN -->
   <div class="group">
     <span class="label">Terrain</span>
-    <button id="two">2-storey red</button>
-    <button id="two-inv">2-storey red (inv)</button>
-    <button id="three">3-storey blue</button>
-    <button id="three-inv">3-storey blue (inv)</button>
+    <button id="two">2-storey</button>
+    <button id="two-inv">2-storey inv</button>
     <button id="proto">Prototype</button>
-    <button id="cont">Container</button>
   </div>
 
-  <!-- ROTATION -->
   <div class="group">
     <span class="label">Rotate</span>
     <button id="rot-l">⟲</button>
     <button id="rot-r">⟳</button>
-    <span class="label">5° / Shift = 1°</span>
   </div>
 
-  <!-- OBJECTIVES -->
   <div class="group">
     <span class="label">Objectives</span>
     <button id="add-obj">Add</button>
     <button id="del-obj">Delete</button>
   </div>
 
-  <!-- DEPLOYMENT -->
   <div class="group">
-    <span class="label">Deployment</span>
-    <button id="dep-ha">Hammer & Anvil</button>
-    <button id="dep-dow">Dawn of War</button>
-    <button id="dep-off">Off</button>
+    <span class="label">Deployment draw</span>
+    <button id="dep-player">Draw Player</button>
+    <button id="dep-enemy">Draw Enemy</button>
+    <button id="dep-undo">Undo point</button>
+    <button id="dep-cancel">Cancel</button>
+    <button id="dep-clear">Clear all</button>
   </div>
 
-  <!-- ACTIONS -->
   <div class="group">
     <button id="delete">Delete selected</button>
     <button id="export">Export JSON</button>
