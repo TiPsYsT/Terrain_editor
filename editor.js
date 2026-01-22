@@ -13,66 +13,63 @@ import {
 
 import { exportJSON } from "./export.js";
 
-/* ================= INIT ================= */
-
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
 
-  /* ================= STATE ================= */
+  /* ===== STATE ===== */
 
   let terrain = { pieces: [] };
   let objectives = [];
 
-  // DEPLOYMENT (NYTT, isolerat)
-  let deployment = { player: [], enemy: [] };
-  let deployMode = null;           // "player" | "enemy"
-  let currentDeployPoly = [];
+  // DEPLOYMENT AS LINES
+  let deployment = [];
+  let deployMode = null;          // "player" | "enemy"
+  let deployStart = null;         // [x,y]
 
-  // befintlig selection
   let selected = null;
-  let selectedObj = null;
   let dragging = false;
   let mode = "terrain";
-  let offset = { x: 0, y: 0 };
+  let offset = { x:0, y:0 };
 
   const snapMM = v => Math.round(v / INCH) * INCH;
   const snapIn = v => Math.round(v);
 
-  /* ================= DRAW ================= */
+  /* ===== DRAW ===== */
 
   function drawDeployment() {
-    const drawPolys = (polys, color) => {
-      ctx.fillStyle = color;
-      polys.forEach(poly => {
-        ctx.beginPath();
-        poly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
-        ctx.closePath();
-        ctx.fill();
-      });
-    };
+    deployment.forEach(d => {
+      ctx.strokeStyle =
+        d.type === "player" ? "blue" : "red";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(d.a[0], d.a[1]);
+      ctx.lineTo(d.b[0], d.b[1]);
+      ctx.stroke();
+    });
 
-    drawPolys(deployment.player, "rgba(0,120,255,0.2)");
-    drawPolys(deployment.enemy,  "rgba(255,80,80,0.2)");
-
-    if (currentDeployPoly.length) {
+    // preview line
+    if (deployStart && deployMode) {
       ctx.strokeStyle = deployMode === "player" ? "blue" : "red";
       ctx.lineWidth = 2;
       ctx.beginPath();
-      currentDeployPoly.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));
+      ctx.moveTo(deployStart[0], deployStart[1]);
+      ctx.lineTo(mouseX, mouseY);
       ctx.stroke();
     }
   }
 
+  let mouseX = 0, mouseY = 0;
+
   function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
     drawGrid(ctx, canvas.width, canvas.height);
-    drawDeployment();                 // ⬅ NYTT LAGER
-    terrain.pieces.forEach(p => drawPiece(ctx, p));
+    drawDeployment();
+    terrain.pieces.forEach(p => drawPiece(ctx,p));
     drawObjectives(ctx, objectives);
   }
 
-  /* ================= TERRAIN (oförändrat) ================= */
+  /* ===== TERRAIN ===== */
 
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
@@ -94,31 +91,39 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     terrain.pieces.push(selected);
-    mode = "terrain";
     draw();
   }
 
-  /* ================= MOUSE ================= */
+  /* ===== MOUSE ===== */
 
   canvas.onmousedown = e => {
-    const x = e.offsetX;
-    const y = e.offsetY;
+    const x = snapMM(e.offsetX);
+    const y = snapMM(e.offsetY);
 
-    // DEPLOYMENT DRAW (ISOLERAT)
+    // DEPLOYMENT LINE
     if (deployMode) {
-      currentDeployPoly.push([snapMM(x), snapMM(y)]);
+      if (!deployStart) {
+        deployStart = [x,y];
+      } else {
+        deployment.push({
+          type: deployMode,
+          a: deployStart,
+          b: [x,y]
+        });
+        deployStart = null;
+      }
       draw();
       return;
     }
 
-    // OBJECTIVES (oförändrat)
+    // OBJECTIVE
     if (mode === "objective") {
       objectives.push({ x: snapIn(x/INCH), y: snapIn(y/INCH) });
       draw();
       return;
     }
 
-    // TERRAIN HIT
+    // TERRAIN DRAG
     selected = [...terrain.pieces].reverse().find(
       p => x>=p.x && x<=p.x+p.w && y>=p.y && y<=p.y+p.h
     );
@@ -131,57 +136,39 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   canvas.onmousemove = e => {
+    mouseX = snapMM(e.offsetX);
+    mouseY = snapMM(e.offsetY);
+
     if (dragging && selected) {
-      selected.x = snapMM(e.offsetX - offset.x);
-      selected.y = snapMM(e.offsetY - offset.y);
+      selected.x = mouseX - offset.x;
+      selected.y = mouseY - offset.y;
       draw();
     }
+
+    if (deployStart) draw();
   };
 
   canvas.onmouseup = () => dragging = false;
 
-  /* ================= DEPLOYMENT CONTROLS ================= */
-
-  function finishDeploy() {
-    if (!deployMode || currentDeployPoly.length < 3) return;
-    deployment[deployMode].push([...currentDeployPoly]);
-    currentDeployPoly = [];
-    draw();
-  }
-
-  /* ================= UI ================= */
+  /* ===== UI ===== */
 
   const bind = (id, fn) =>
     document.getElementById(id)?.addEventListener("click", fn);
 
-  // terrain
   bind("two", () => addTerrain("two_red"));
   bind("two-inv", () => addTerrain("two_red_inv"));
-  bind("three", () => addTerrain("three_blue"));
-  bind("three-inv", () => addTerrain("three_blue_inv"));
   bind("proto", () => addTerrain("prototype"));
-  bind("cont", () => addTerrain("container"));
 
-  // rotation
   bind("rot-l", () => selected && (selected.rotation -= 5, draw()));
   bind("rot-r", () => selected && (selected.rotation += 5, draw()));
 
-  // objectives
-  bind("add-obj", () => mode = "objective");
+  bind("add-obj", () => mode="objective");
   bind("del-obj", () => objectives.pop() && draw());
 
-  // deployment
-  bind("dep-player", () => { deployMode="player"; currentDeployPoly=[]; });
-  bind("dep-enemy",  () => { deployMode="enemy";  currentDeployPoly=[]; });
-  bind("dep-undo",   () => { currentDeployPoly.pop(); draw(); });
-  bind("dep-finish", finishDeploy);
-  bind("dep-clear",  () => {
-    deployment.player=[];
-    deployment.enemy=[];
-    currentDeployPoly=[];
-    deployMode=null;
-    draw();
-  });
+  bind("dep-player", () => { deployMode="player"; deployStart=null; });
+  bind("dep-enemy",  () => { deployMode="enemy";  deployStart=null; });
+  bind("dep-cancel", () => { deployMode=null; deployStart=null; draw(); });
+  bind("dep-clear",  () => { deployment=[]; deployStart=null; draw(); });
 
   bind("delete", () => {
     if (selected) {
