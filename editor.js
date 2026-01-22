@@ -5,27 +5,52 @@ import {
   INCH
 } from "./terrain-types.js";
 
-import { drawGrid, drawPiece } from "./render.js";
+import {
+  drawGrid,
+  drawPiece,
+  drawObjectives
+} from "./render.js";
+
 import { exportJSON } from "./export.js";
+
+/* ================= INIT ================= */
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
 
+  /* ================= STATE ================= */
+
   let pieces = [];
-  let selected = null;
+  let objectives = [];
+
+  let selected = null;          // terrain piece
+  let selectedObj = null;       // objective index
+
   let dragging = false;
+  let mode = "terrain";         // "terrain" | "objective"
+
   let offset = { x: 0, y: 0 };
+
+  /* ================= HELPERS ================= */
 
   function snap(v) {
     return Math.round(v / INCH) * INCH;
   }
 
+  function snapInch(v) {
+    return Math.round(v);
+  }
+
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     drawGrid(ctx, canvas.width, canvas.height);
     pieces.forEach(p => drawPiece(ctx, p));
+    drawObjectives(ctx, objectives);
   }
+
+  /* ================= TERRAIN ================= */
 
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
@@ -34,6 +59,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let walls = [];
     if (t.l === "normal") walls = buildL(t.w, t.h);
     if (t.l === "mirrored") walls = buildLInv(t.w, t.h);
+
+    selectedObj = null;
+    mode = "terrain";
 
     selected = {
       type: t.id,
@@ -50,21 +78,54 @@ document.addEventListener("DOMContentLoaded", () => {
     draw();
   }
 
-  /* ---------- MOUSE ---------- */
+  /* ================= OBJECTIVES ================= */
+
+  function addObjectiveAt(x, y) {
+    if (objectives.length >= 5) return;
+
+    objectives.push({
+      x: snapInch(x / INCH),
+      y: snapInch(y / INCH)
+    });
+
+    selectedObj = objectives.length - 1;
+    selected = null;
+    draw();
+  }
+
+  function deleteObjective() {
+    if (selectedObj === null) return;
+    objectives.splice(selectedObj, 1);
+    selectedObj = null;
+    draw();
+  }
+
+  /* ================= MOUSE ================= */
 
   canvas.onmousedown = e => {
     const x = e.offsetX;
     const y = e.offsetY;
 
+    if (mode === "objective") {
+      addObjectiveAt(x, y);
+      return;
+    }
+
+    // terrain hit test
     selected = [...pieces].reverse().find(
-      p => x >= p.x && x <= p.x + p.w && y >= p.y && y <= p.y + p.h
+      p => x >= p.x && x <= p.x + p.w &&
+           y >= p.y && y <= p.y + p.h
     );
+
+    selectedObj = null;
 
     if (selected) {
       dragging = true;
       offset.x = x - selected.x;
       offset.y = y - selected.y;
     }
+
+    draw();
   };
 
   canvas.onmousemove = e => {
@@ -79,48 +140,55 @@ document.addEventListener("DOMContentLoaded", () => {
     dragging = false;
   };
 
-  /* ---------- ROTATION ---------- */
+  /* ================= ROTATION ================= */
 
-  function rotate(deg) {
+  function rotate(dir) {
     if (!selected) return;
-    selected.rotation += deg;
+    const step = window.event.shiftKey ? 1 : 5;
+    selected.rotation += dir * step;
     draw();
   }
 
-  /* ---------- DELETE ---------- */
+  /* ================= DELETE ================= */
 
   function deleteSelected() {
-    if (!selected) return;
-    pieces = pieces.filter(p => p !== selected);
-    selected = null;
+    if (selected) {
+      pieces = pieces.filter(p => p !== selected);
+      selected = null;
+    }
     draw();
   }
 
-  /* ---------- SAFE BIND ---------- */
+  /* ================= UI BIND ================= */
 
   function bind(id, fn) {
     const el = document.getElementById(id);
     if (el) el.onclick = fn;
   }
 
-  /* ---------- UI ---------- */
+  /* ----- terrain ----- */
+  bind("two",      () => addTerrain("two_red"));
+  bind("two-inv",  () => addTerrain("two_red_inv"));
+  bind("three",    () => addTerrain("three_blue"));
+  bind("three-inv",() => addTerrain("three_blue_inv"));
+  bind("proto",    () => addTerrain("prototype"));
+  bind("cont",     () => addTerrain("container"));
 
-  bind("two", () => addTerrain("two_red"));
-  bind("two-inv", () => addTerrain("two_red_inv"));
-  bind("three", () => addTerrain("three_blue"));
-  bind("three-inv", () => addTerrain("three_blue_inv"));
-  bind("proto", () => addTerrain("prototype"));
-  bind("cont", () => addTerrain("container"));
+  /* ----- rotation ----- */
+  bind("rot-l", () => rotate(-1));
+  bind("rot-r", () => rotate(+1));
 
-  bind("rot-l-11", () => rotate(-11.25));
-  bind("rot-r-11", () => rotate(+11.25));
-  bind("rot-l-22", () => rotate(-22.5));
-  bind("rot-r-22", () => rotate(+22.5));
-  bind("rot-l-45", () => rotate(-45));
-  bind("rot-r-45", () => rotate(+45));
+  /* ----- objectives ----- */
+  bind("add-obj", () => {
+    mode = "objective";
+    selected = null;
+  });
 
+  bind("del-obj", deleteObjective);
+
+  /* ----- actions ----- */
   bind("delete", deleteSelected);
-  bind("export", () => exportJSON(pieces));
+  bind("export", () => exportJSON(pieces, objectives));
 
   draw();
 });
