@@ -17,30 +17,30 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
 
-  /* ===== STATE ===== */
+  /* ================= STATE ================= */
 
   let terrain = { pieces: [] };
   let objectives = [];
 
-  // DEPLOYMENT AS LINES
-  let deployment = [];
+  // DEPLOYMENT LINES (PERSISTENT)
+  let deployment = [];            // ← SANNINGEN
   let deployMode = null;          // "player" | "enemy"
-  let deployStart = null;         // [x,y]
+  let deployStart = null;         // ← ENDAST PREVIEW
 
   let selected = null;
   let dragging = false;
   let mode = "terrain";
-  let offset = { x:0, y:0 };
+  let offset = { x: 0, y: 0 };
 
   const snapMM = v => Math.round(v / INCH) * INCH;
   const snapIn = v => Math.round(v);
 
-  /* ===== DRAW ===== */
+  /* ================= DRAW ================= */
 
   function drawDeployment() {
+    // PERMANENTA LINJER
     deployment.forEach(d => {
-      ctx.strokeStyle =
-        d.type === "player" ? "blue" : "red";
+      ctx.strokeStyle = d.type === "player" ? "blue" : "red";
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(d.a[0], d.a[1]);
@@ -48,8 +48,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.stroke();
     });
 
-    // preview line
-    if (deployStart && deployMode) {
+    // PREVIEW-LINJE (tillfällig)
+    if (deployStart) {
       ctx.strokeStyle = deployMode === "player" ? "blue" : "red";
       ctx.lineWidth = 2;
       ctx.beginPath();
@@ -62,14 +62,14 @@ document.addEventListener("DOMContentLoaded", () => {
   let mouseX = 0, mouseY = 0;
 
   function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawGrid(ctx, canvas.width, canvas.height);
     drawDeployment();
-    terrain.pieces.forEach(p => drawPiece(ctx,p));
+    terrain.pieces.forEach(p => drawPiece(ctx, p));
     drawObjectives(ctx, objectives);
   }
 
-  /* ===== TERRAIN ===== */
+  /* ================= TERRAIN ================= */
 
   function addTerrain(key) {
     const t = TERRAIN_TYPES[key];
@@ -91,24 +91,30 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     terrain.pieces.push(selected);
+
+    // ⬇️ VIKTIGT: rör INTE deployment[]
+    deployMode = null;
+    deployStart = null;
+
     draw();
   }
 
-  /* ===== MOUSE ===== */
+  /* ================= MOUSE ================= */
 
   canvas.onmousedown = e => {
     const x = snapMM(e.offsetX);
     const y = snapMM(e.offsetY);
 
-    // DEPLOYMENT LINE
+    // DEPLOYMENT (KLICK–KLICK)
     if (deployMode) {
       if (!deployStart) {
-        deployStart = [x,y];
+        deployStart = [x, y];
       } else {
+        // ⬇️ SPARAS PERMANENT
         deployment.push({
           type: deployMode,
           a: deployStart,
-          b: [x,y]
+          b: [x, y]
         });
         deployStart = null;
       }
@@ -116,16 +122,17 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // OBJECTIVE
+    // OBJECTIVES
     if (mode === "objective") {
-      objectives.push({ x: snapIn(x/INCH), y: snapIn(y/INCH) });
+      objectives.push({ x: snapIn(x / INCH), y: snapIn(y / INCH) });
       draw();
       return;
     }
 
     // TERRAIN DRAG
     selected = [...terrain.pieces].reverse().find(
-      p => x>=p.x && x<=p.x+p.w && y>=p.y && y<=p.y+p.h
+      p => x >= p.x && x <= p.x + p.w &&
+           y >= p.y && y <= p.y + p.h
     );
 
     if (selected) {
@@ -150,30 +157,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
   canvas.onmouseup = () => dragging = false;
 
-  /* ===== UI ===== */
+  /* ================= UI ================= */
 
   const bind = (id, fn) =>
     document.getElementById(id)?.addEventListener("click", fn);
 
+  // TERRAIN
   bind("two", () => addTerrain("two_red"));
   bind("two-inv", () => addTerrain("two_red_inv"));
+  bind("three", () => addTerrain("three_blue"));
+  bind("three-inv", () => addTerrain("three_blue_inv"));
   bind("proto", () => addTerrain("prototype"));
+  bind("cont", () => addTerrain("container"));
 
+  // ROTATION
   bind("rot-l", () => selected && (selected.rotation -= 5, draw()));
   bind("rot-r", () => selected && (selected.rotation += 5, draw()));
 
-  bind("add-obj", () => mode="objective");
+  // OBJECTIVES
+  bind("add-obj", () => mode = "objective");
   bind("del-obj", () => objectives.pop() && draw());
 
-  bind("dep-player", () => { deployMode="player"; deployStart=null; });
-  bind("dep-enemy",  () => { deployMode="enemy";  deployStart=null; });
-  bind("dep-cancel", () => { deployMode=null; deployStart=null; draw(); });
-  bind("dep-clear",  () => { deployment=[]; deployStart=null; draw(); });
+  // DEPLOYMENT (RÖR INTE deployment[])
+  bind("dep-player", () => {
+    deployMode = "player";
+    deployStart = null;
+  });
+
+  bind("dep-enemy", () => {
+    deployMode = "enemy";
+    deployStart = null;
+  });
+
+  bind("dep-cancel", () => {
+    deployMode = null;
+    deployStart = null;
+    draw();
+  });
+
+  bind("dep-clear", () => {
+    deployment.length = 0;   // ← ENDA STÄLLET SOM RENSAR
+    deployStart = null;
+    draw();
+  });
 
   bind("delete", () => {
     if (selected) {
-      terrain.pieces = terrain.pieces.filter(p=>p!==selected);
-      selected=null;
+      terrain.pieces = terrain.pieces.filter(p => p !== selected);
+      selected = null;
       draw();
     }
   });
