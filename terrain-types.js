@@ -1,11 +1,5 @@
 export const INCH = 25.4;
 
-/*
-  Enda sanningen:
-  - samma footprint
-  - olika L-orientering
-*/
-
 export const TERRAIN_TYPES = {
   two_red: {
     id: "two_storey_red",
@@ -56,12 +50,20 @@ export const TERRAIN_TYPES = {
   }
 };
 
-/* ===== OBJECTIVES ===== */
+/* ===== L-väggar ===== */
 
-export const OBJECTIVE_TYPES = {
-  standard: {
-    id: "objective",
-    r: 40,              // 40mm objective marker
-    control: 3 * INCH   // 3" control range (10th)
-  }
-};
+export function buildL(w, h) {
+  const r = INCH;
+  return [
+    [[1 * r - 0.5 * r, 1 * r], [(1 + 9 + 1 / 8) * r, 1 * r]],
+    [[1 * r, 1 * r], [1 * r, h - (1 / 8) * r]]
+  ];
+}
+
+export function buildLInv(w, h) {
+  const r = INCH;
+  return [
+    [[w - (1 + 9 + 1 / 8) * r, 1 * r], [w - (1 * r - 0.5 * r), 1 * r]],
+    [[w - 1 * r, 1 * r], [w - 1 * r, h - (1 / 8) * r]]
+  ];
+}
