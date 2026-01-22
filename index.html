@@ -19,6 +19,7 @@
       flex-wrap: wrap;
       gap: 6px;
       align-items: center;
+      border-bottom: 1px solid #444;
     }
 
     #controls button {
@@ -27,10 +28,23 @@
       background: #333;
       color: #eee;
       border: 1px solid #555;
+      font-size: 13px;
     }
 
     #controls button:hover {
       background: #444;
+    }
+
+    #controls .group {
+      display: flex;
+      gap: 4px;
+      margin-right: 10px;
+    }
+
+    #controls .label {
+      font-size: 12px;
+      color: #aaa;
+      margin-right: 4px;
     }
 
     canvas {
@@ -42,28 +56,39 @@
 <body>
 
 <div id="controls">
-  <button id="two">2-storey ruin (red)</button>
-  <button id="two-inv">2-storey ruin (red, inverted)</button>
 
-  <button id="three">3-storey ruin (blue)</button>
-  <button id="three-inv">3-storey ruin (blue, inverted)</button>
+  <!-- TERRAIN -->
+  <div class="group">
+    <span class="label">Terrain</span>
+    <button id="two">2-storey (red)</button>
+    <button id="two-inv">2-storey (red, inv)</button>
+    <button id="three">3-storey (blue)</button>
+    <button id="three-inv">3-storey (blue, inv)</button>
+    <button id="proto">Prototype</button>
+    <button id="cont">Container</button>
+  </div>
 
-  <button id="proto">Prototype ruin</button>
-  <button id="cont">Container</button>
+  <!-- ROTATION -->
+  <div class="group">
+    <span class="label">Rotate</span>
+    <button id="rot-l">⟲</button>
+    <button id="rot-r">⟳</button>
+    <span class="label">(5° / Shift = 1°)</span>
+  </div>
 
-  <button id="rot-l-11">−11.25°</button>
-  <button id="rot-r-11">+11.25°</button>
+  <!-- OBJECTIVES -->
+  <div class="group">
+    <span class="label">Objectives</span>
+    <button id="add-obj">Add</button>
+    <button id="del-obj">Delete</button>
+  </div>
 
-  <button id="rot-l-22">−22.5°</button>
-  <button id="rot-r-22">+22.5°</button>
+  <!-- ACTIONS -->
+  <div class="group">
+    <button id="delete">Delete selected</button>
+    <button id="export">Export JSON</button>
+  </div>
 
-  <button id="rot-l-45">−45°</button>
-  <button id="rot-r-45">+45°</button>
-
-  <!-- NY -->
-  <button id="delete">Delete selected</button>
-
-  <button id="export">Export JSON</button>
 </div>
 
 <canvas id="board" width="1524" height="1118"></canvas>
