@@ -3,90 +3,50 @@
 <head>
   <meta charset="UTF-8" />
   <title>Terrain Editor</title>
-
   <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background: #111;
-      color: #eee;
-    }
-
+    body { margin:0; background:#111; color:#eee; font-family:sans-serif; }
     #controls {
-      padding: 10px;
-      background: #222;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      align-items: center;
-      border-bottom: 1px solid #444;
+      padding:10px; background:#222; display:flex; flex-wrap:wrap;
+      gap:6px; align-items:center; border-bottom:1px solid #444;
     }
-
     button {
-      padding: 6px 10px;
-      background: #333;
-      color: #eee;
-      border: 1px solid #555;
-      cursor: pointer;
+      padding:6px 10px; background:#333; color:#eee;
+      border:1px solid #555; cursor:pointer;
     }
-
-    button:hover { background: #444; }
-
-    .group {
-      display: flex;
-      gap: 4px;
-      align-items: center;
-      margin-right: 10px;
-    }
-
-    .label {
-      font-size: 12px;
-      color: #aaa;
-      margin-right: 4px;
-    }
-
-    canvas {
-      display: block;
-      background: #eee;
-    }
+    button:hover { background:#444; }
+    .group { display:flex; gap:4px; align-items:center; margin-right:10px; }
+    .label { font-size:12px; color:#aaa; margin-right:4px; }
+    canvas { display:block; background:#eee; }
   </style>
 </head>
 <body>
 
 <div id="controls">
 
-  <!-- TERRAIN (oförändrat) -->
   <div class="group">
     <span class="label">Terrain</span>
-    <button id="two">2-storey red</button>
-    <button id="two-inv">2-storey red inv</button>
-    <button id="three">3-storey blue</button>
-    <button id="three-inv">3-storey blue inv</button>
+    <button id="two">2-storey</button>
+    <button id="two-inv">2-storey inv</button>
     <button id="proto">Prototype</button>
-    <button id="cont">Container</button>
   </div>
 
-  <!-- ROTATION (oförändrat) -->
   <div class="group">
     <span class="label">Rotate</span>
     <button id="rot-l">⟲</button>
     <button id="rot-r">⟳</button>
   </div>
 
-  <!-- OBJECTIVES (oförändrat) -->
   <div class="group">
     <span class="label">Objectives</span>
     <button id="add-obj">Add</button>
     <button id="del-obj">Delete</button>
   </div>
 
-  <!-- DEPLOYMENT (NYTT) -->
   <div class="group">
-    <span class="label">Deployment</span>
+    <span class="label">Deployment lines</span>
     <button id="dep-player">Draw Player</button>
     <button id="dep-enemy">Draw Enemy</button>
-    <button id="dep-undo">Undo</button>
-    <button id="dep-finish">Finish</button>
+    <button id="dep-cancel">Cancel</button>
     <button id="dep-clear">Clear</button>
   </div>
 
@@ -98,7 +58,6 @@
 </div>
 
 <canvas id="board" width="1524" height="1118"></canvas>
-
 <script type="module" src="editor.js"></script>
 </body>
 </html>
