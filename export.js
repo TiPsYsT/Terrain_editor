@@ -1,23 +1,19 @@
-export function exportJSON(pieces, objectives = []) {
-  const data = {
-    pieces: pieces.map(p => ({
-      type: p.type,
-      color: p.color,
-      x: Math.round(p.x),
-      y: Math.round(p.y),
-      w: p.w,
-      h: p.h,
-      rotation: p.rotation,
-      walls: p.walls
-    })),
+export function exportJSON(data) {
+  // Bakåtkompatibilitet:
+  // om man råkar skicka bara pieces-array
+  if (Array.isArray(data)) {
+    data = { terrain: { pieces: data } };
+  }
 
-    objectives: objectives.map(o => ({
-      x: o.x,
-      y: o.y
-    }))
+  const out = {
+    terrain: data.terrain ?? { pieces: [] },
+    objectives: data.objectives ?? [],
+    deployment: data.deployment ?? []
   };
 
-  const text = JSON.stringify(data, null, 2);
-  navigator.clipboard.writeText(text);
-  alert("Terrain + objectives JSON copied to clipboard");
+  const text = JSON.stringify(out, null, 2);
+
+  navigator.clipboard.writeText(text)
+    .then(() => alert("JSON copied to clipboard"))
+    .catch(() => alert("Failed to copy JSON"));
 }
