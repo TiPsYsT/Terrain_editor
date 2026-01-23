@@ -13,6 +13,8 @@ import {
 
 import { exportJSON } from "./export.js";
 
+/* ================= INIT ================= */
+
 document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("board");
   const ctx = canvas.getContext("2d");
@@ -22,10 +24,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let terrain = { pieces: [] };
   let objectives = [];
 
-  // deployment = linjer
+  // Deployment = linjer
   let deployment = [];
-  let deployMode = null;
-  let deployStart = null;
+  let deployMode = null;      // "player" | "enemy" | null
+  let deployStart = null;     // preview only
 
   let selected = null;
   let selectedObj = null;
@@ -33,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let dragging = false;
   let draggingObj = false;
 
-  let mode = "terrain";
+  let mode = "terrain";      // terrain | objective
   let offset = { x: 0, y: 0 };
 
   let mouseX = 0;
@@ -42,9 +44,19 @@ document.addEventListener("DOMContentLoaded", () => {
   const snapMM = v => Math.round(v / INCH) * INCH;
   const snapIn = v => Math.round(v);
 
+  /* ================= MODE RESET ================= */
+
+  function resetModes() {
+    mode = "terrain";
+    deployMode = null;
+    deployStart = null;
+    selectedObj = null;
+  }
+
   /* ================= DRAW ================= */
 
   function drawDeployment() {
+    // saved lines
     deployment.forEach(d => {
       ctx.strokeStyle = d.type === "player" ? "blue" : "red";
       ctx.lineWidth = 4;
@@ -54,6 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.stroke();
     });
 
+    // preview
     if (deployStart) {
       ctx.strokeStyle = deployMode === "player" ? "blue" : "red";
       ctx.lineWidth = 2;
@@ -75,6 +88,8 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ================= TERRAIN ================= */
 
   function addTerrain(key) {
+    resetModes();
+
     const t = TERRAIN_TYPES[key];
     if (!t) return;
 
@@ -94,16 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     terrain.pieces.push(selected);
-    deployMode = null;
-    deployStart = null;
     draw();
   }
 
-  /* ================= HIT TEST OBJECTIVE ================= */
+  /* ================= OBJECTIVE HIT ================= */
 
   function hitObjective(x, y) {
     return objectives.findIndex(o =>
-      Math.hypot(x - o.x * INCH, y - o.y * INCH) < 20
+      Math.hypot(x - o.x * INCH, y - o.y * INCH) <= 20
     );
   }
 
@@ -132,6 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // OBJECTIVE HIT
     const oi = hitObjective(x, y);
     if (oi !== -1) {
+      resetModes();
       selectedObj = oi;
       draggingObj = true;
       offset.x = x - objectives[oi].x * INCH;
@@ -154,10 +168,16 @@ document.addEventListener("DOMContentLoaded", () => {
     );
 
     if (selected) {
+      resetModes();
       dragging = true;
       offset.x = x - selected.x;
       offset.y = y - selected.y;
+    } else {
+      selected = null;
+      selectedObj = null;
     }
+
+    draw();
   };
 
   canvas.onmousemove = e => {
@@ -211,7 +231,11 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Objectives
-  bind("add-obj", () => mode = "objective");
+  bind("add-obj", () => {
+    resetModes();
+    mode = "objective";
+  });
+
   bind("del-obj", () => {
     if (selectedObj !== null) {
       objectives.splice(selectedObj, 1);
@@ -221,10 +245,26 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Deployment
-  bind("dep-player", () => { deployMode = "player"; deployStart = null; });
-  bind("dep-enemy", () => { deployMode = "enemy"; deployStart = null; });
-  bind("dep-cancel", () => { deployMode = null; deployStart = null; draw(); });
-  bind("dep-clear", () => { deployment = []; deployStart = null; draw(); });
+  bind("dep-player", () => {
+    resetModes();
+    deployMode = "player";
+  });
+
+  bind("dep-enemy", () => {
+    resetModes();
+    deployMode = "enemy";
+  });
+
+  bind("dep-cancel", () => {
+    resetModes();
+    draw();
+  });
+
+  bind("dep-clear", () => {
+    deployment.length = 0;
+    deployStart = null;
+    draw();
+  });
 
   // Delete terrain
   bind("delete", () => {
